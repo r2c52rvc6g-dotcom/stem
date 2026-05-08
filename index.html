@@ -1,74 +1,177 @@
-export default function PolygonAnglesSite() {
-  const polygons = [
-    { name: "مثلث", sides: 3 },
-    { name: "مربع", sides: 4 },
-    { name: "خماسي", sides: 5 },
-    { name: "سداسي", sides: 6 },
-    { name: "سباعي", sides: 7 },
-    { name: "ثماني", sides: 8 },
-  ];
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الزوايا التفاعلية</title>
+    <style>
+        :root {
+            --primary: #003366;
+            --secondary: #11CAA0;
+            --bg: #f8fafc;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        .controls { margin: 20px 0; display: flex; justify-content: center; gap: 15px; align-items: center; }
+        input[type="number"] {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 80px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background: var(--secondary); }
+        .angle-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        .angle-field { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .result-box {
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        canvas {
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            margin-top: 20px;
+            background: #fff;
+        }
+        .info { color: #64748b; font-size: 14px; margin-top: 10px; }
+    </style>
+</head>
+<body>
 
-  const calculateInteriorAngle = (sides) => {
-    return (((sides - 2) * 180) / sides).toFixed(2);
-  };
+<div class="container">
+    <h1>📐 حاسبة الزوايا الداخلية</h1>
+    <p>أدخل عدد الأضلاع ثم جرب وضع قيم الزوايا بنفسك!</p>
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 to-indigo-200 p-6 flex flex-col items-center">
-      <div className="max-w-5xl w-full">
-        <div className="text-center mb-10">
-          <h1 className="text-5xl font-bold text-indigo-900 mb-4">
-            موقع STEM لقياس الزوايا الداخلية
-          </h1>
-          <p className="text-lg text-gray-700 leading-8">
-            تعلّم حساب الزوايا الداخلية للأشكال الهندسية بطريقة تفاعلية وممتعة.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {polygons.map((shape, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-3xl shadow-xl p-6 hover:scale-105 transition-transform duration-300"
-            >
-              <div className="flex justify-center mb-4">
-                <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center text-3xl font-bold text-indigo-700">
-                  {shape.sides}
-                </div>
-              </div>
-
-              <h2 className="text-2xl font-semibold text-center text-indigo-900 mb-2">
-                {shape.name}
-              </h2>
-
-              <p className="text-center text-gray-600 mb-4">
-                عدد الأضلاع: {shape.sides}
-              </p>
-
-              <div className="bg-indigo-50 rounded-2xl p-4 text-center">
-                <p className="text-gray-700 mb-2">قياس الزاوية الداخلية:</p>
-                <p className="text-3xl font-bold text-indigo-700">
-                  {calculateInteriorAngle(shape.sides)}°
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-12 bg-white rounded-3xl shadow-xl p-8">
-          <h2 className="text-3xl font-bold text-indigo-900 mb-4 text-center">
-            قانون الزاوية الداخلية
-          </h2>
-
-          <div className="bg-indigo-100 rounded-2xl p-6 text-center text-xl font-semibold text-indigo-800">
-            الزاوية الداخلية = ((عدد الأضلاع - 2) × 180) ÷ عدد الأضلاع
-          </div>
-
-          <p className="mt-6 text-gray-700 leading-8 text-center">
-            يستخدم هذا القانون لمعرفة قياس كل زاوية داخلية في أي شكل منتظم.
-          </p>
-        </div>
-      </div>
+    <div class="controls">
+        <label>عدد الأضلاع:</label>
+        <input type="number" id="sides" min="3" max="12" value="3">
+        <button onclick="setupAngles()">توليد الحقول</button>
     </div>
-  );
-}
- 
+
+    <div id="angleInputs" class="angle-inputs">
+        </div>
+
+    <button onclick="validateAngles()">تحقق من المجموع وارسم</button>
+
+    <div id="result" class="result-box" style="display: none;"></div>
+
+    <canvas id="polygonCanvas" width="400" height="400"></canvas>
+    
+    <div class="info">
+        * القاعدة: مجموع الزوايا = (عدد الأضلاع - 2) × 180
+    </div>
+</div>
+
+<script>
+    function setupAngles() {
+        const n = document.getElementById('sides').value;
+        const container = document.getElementById('angleInputs');
+        container.innerHTML = '';
+        
+        for (let i = 1; i <= n; i++) {
+            container.innerHTML += `
+                <div class="angle-field">
+                    <label>زاوية ${i}</label>
+                    <input type="number" class="angle-val" placeholder="0°" oninput="drawPolygon()">
+                </div>
+            `;
+        }
+        drawPolygon(); // رسم مبدئي
+    }
+
+    function validateAngles() {
+        const n = parseInt(document.getElementById('sides').value);
+        const inputs = document.querySelectorAll('.angle-val');
+        const resultDiv = document.getElementById('result');
+        
+        let sum = 0;
+        inputs.forEach(input => sum += parseFloat(input.value || 0));
+        
+        const expectedSum = (n - 2) * 180;
+        
+        resultDiv.style.display = 'block';
+        if (Math.abs(sum - expectedSum) < 0.1) {
+            resultDiv.className = 'result-box success';
+            resultDiv.innerText = `✅ رائع! المجموع هو ${sum}° وهو يطابق القانون تماماً.`;
+        } else {
+            resultDiv.className = 'result-box error';
+            resultDiv.innerText = `❌ خطأ: المجموع الحالي ${sum}°. يجب أن يكون المجموع ${expectedSum}° لمضلع ذو ${n} أضلاع.`;
+        }
+        drawPolygon();
+    }
+
+    function drawPolygon() {
+        const canvas = document.getElementById('polygonCanvas');
+        const ctx = canvas.getContext('2d');
+        const n = parseInt(document.getElementById('sides').value);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 120;
+        
+        ctx.beginPath();
+        ctx.strokeStyle = '#003366';
+        ctx.lineWidth = 3;
+        ctx.fillStyle = '#11CAA033';
+
+        for (let i = 0; i < n; i++) {
+            const angle = (i * 2 * Math.PI) / n;
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fill();
+    }
+
+    // تشغيل مبدئي عند فتح الصفحة
+    window.onload = setupAngles;
+</script>
+
+</body>
+</html>
+
+مشروعك الآن يسير في الطريق الصحيح! هل واجهت أي صعوبة في عملية النسخ واللصق على GitHub؟
