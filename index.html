@@ -2,176 +2,85 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة الزوايا التفاعلية</title>
+    <title>حاسبة الخماسي التفاعلية</title>
     <style>
-        :root {
-            --primary: #003366;
-            --secondary: #11CAA0;
-            --bg: #f8fafc;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-        }
-        h1 { color: var(--primary); margin-bottom: 10px; }
-        .controls { margin: 20px 0; display: flex; justify-content: center; gap: 15px; align-items: center; }
-        input[type="number"] {
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            width: 80px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover { background: var(--secondary); }
-        .angle-inputs {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-            padding: 20px;
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-        .angle-field { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .result-box {
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        canvas {
-            border: 2px solid var(--primary);
-            border-radius: 10px;
-            margin-top: 20px;
-            background: #fff;
-        }
-        .info { color: #64748b; font-size: 14px; margin-top: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 600px; text-align: center; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .input-group { margin: 20px 0; background: #f9f9f9; padding: 15px; border-radius: 10px; }
+        input { padding: 10px; font-size: 18px; width: 80px; border: 2px solid #ddd; border-radius: 5px; text-align: center; }
+        .angles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 20px; }
+        .angle-box { background: #eef2f3; padding: 10px; border-radius: 8px; font-size: 14px; }
+        .angle-val { display: block; font-weight: bold; color: #2980b9; font-size: 18px; margin-top: 5px; }
+        button { background-color: #4CAF50; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        button:hover { background-color: #45a049; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; font-weight: bold; }
+        .success { background-color: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6; }
+        .error { background-color: #f2dede; color: #a94442; border: 1px solid #ebccd1; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>📐 حاسبة الزوايا الداخلية</h1>
-    <p>أدخل عدد الأضلاع ثم جرب وضع قيم الزوايا بنفسك!</p>
+<div class="card">
+    <h2>حاسبة زوايا الشكل الخماسي</h2>
+    <p>أوجد قياسات الزوايا بناءً على قيمة $x$ (المسألة 1B)</p>
 
-    <div class="controls">
-        <label>عدد الأضلاع:</label>
-        <input type="number" id="sides" min="3" max="12" value="3">
-        <button onclick="setupAngles()">توليد الحقول</button>
+    <div class="input-group">
+        <label>أدخل قيمة $x$: </label>
+        <input type="number" id="xValue" placeholder="؟" oninput="calculate()">
     </div>
 
-    <div id="angleInputs" class="angle-inputs">
-        </div>
+    <div class="angles-grid">
+        <div class="angle-box">الزاوية J<span class="angle-val">142°</span></div>
+        <div class="angle-box">الزاوية H (2x)<span id="angleH" class="angle-val">-</span></div>
+        <div class="angle-box">الزاوية K (2x)<span id="angleK" class="angle-val">-</span></div>
+        <div class="angle-box">الزاوية M (3x+14)<span id="angleM" class="angle-val">-</span></div>
+        <div class="angle-box">الزاوية L (3x+14)<span id="angleL" class="angle-val">-</span></div>
+    </div>
 
-    <button onclick="validateAngles()">تحقق من المجموع وارسم</button>
-
-    <div id="result" class="result-box" style="display: none;"></div>
-
-    <canvas id="polygonCanvas" width="400" height="400"></canvas>
+    <div id="result"></div>
     
-    <div class="info">
-        * القاعدة: مجموع الزوايا = (عدد الأضلاع - 2) × 180
-    </div>
+    <button onclick="checkAnswer()">تحقق من المجموع</button>
 </div>
 
 <script>
-    function setupAngles() {
-        const n = document.getElementById('sides').value;
-        const container = document.getElementById('angleInputs');
-        container.innerHTML = '';
-        
-        for (let i = 1; i <= n; i++) {
-            container.innerHTML += `
-                <div class="angle-field">
-                    <label>زاوية ${i}</label>
-                    <input type="number" class="angle-val" placeholder="0°" oninput="drawPolygon()">
-                </div>
-            `;
-        }
-        drawPolygon(); // رسم مبدئي
+    function calculate() {
+        let x = parseFloat(document.getElementById('xValue').value);
+        if (isNaN(x)) return;
+
+        // المعادلات من الصورة
+        let angle2x = 2 * x;
+        let angle3x14 = (3 * x) + 14;
+
+        document.getElementById('angleH').innerText = angle2x + "°";
+        document.getElementById('angleK').innerText = angle2x + "°";
+        document.getElementById('angleM').innerText = angle3x14 + "°";
+        document.getElementById('angleL').innerText = angle3x14 + "°";
     }
 
-    function validateAngles() {
-        const n = parseInt(document.getElementById('sides').value);
-        const inputs = document.querySelectorAll('.angle-val');
-        const resultDiv = document.getElementById('result');
+    function checkAnswer() {
+        let x = parseFloat(document.getElementById('xValue').value);
+        let resultDiv = document.getElementById('result');
         
-        let sum = 0;
-        inputs.forEach(input => sum += parseFloat(input.value || 0));
-        
-        const expectedSum = (n - 2) * 180;
-        
-        resultDiv.style.display = 'block';
-        if (Math.abs(sum - expectedSum) < 0.1) {
-            resultDiv.className = 'result-box success';
-            resultDiv.innerText = `✅ رائع! المجموع هو ${sum}° وهو يطابق القانون تماماً.`;
+        if (isNaN(x)) {
+            resultDiv.style.display = "block";
+            resultDiv.className = "error";
+            resultDiv.innerText = "يرجى إدخال قيمة لـ x أولاً";
+            return;
+        }
+
+        let total = 142 + (2*x) + (2*x) + (3*x+14) + (3*x+14);
+        resultDiv.style.display = "block";
+
+        if (total === 540) {
+            resultDiv.className = "success";
+            resultDiv.innerHTML = "رائع! المجموع هو 540° وهو يطابق القانون تماماً. <br> إجابتك صحيحة (x = 37)";
         } else {
-            resultDiv.className = 'result-box error';
-            resultDiv.innerText = `❌ خطأ: المجموع الحالي ${sum}°. يجب أن يكون المجموع ${expectedSum}° لمضلع ذو ${n} أضلاع.`;
+            resultDiv.className = "error";
+            resultDiv.innerText = "المجموع الحالي هو " + total + "°. حاول مرة أخرى للوصول إلى 540°.";
         }
-        drawPolygon();
     }
-
-    function drawPolygon() {
-        const canvas = document.getElementById('polygonCanvas');
-        const ctx = canvas.getContext('2d');
-        const n = parseInt(document.getElementById('sides').value);
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = 120;
-        
-        ctx.beginPath();
-        ctx.strokeStyle = '#003366';
-        ctx.lineWidth = 3;
-        ctx.fillStyle = '#11CAA033';
-
-        for (let i = 0; i < n; i++) {
-            const angle = (i * 2 * Math.PI) / n;
-            const x = centerX + radius * Math.cos(angle);
-            const y = centerY + radius * Math.sin(angle);
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.stroke();
-        ctx.fill();
-    }
-
-    // تشغيل مبدئي عند فتح الصفحة
-    window.onload = setupAngles;
 </script>
 
 </body>
 </html>
-
-مشروعك الآن يسير في الطريق الصحيح! هل واجهت أي صعوبة في عملية النسخ واللصق على GitHub؟
