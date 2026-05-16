@@ -1,115 +1,137 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import re
 
-# --- دالة الترشيح الرئيسية ---
-def apply_filter():
-    raw_input = entry_input.get()
-    filter_type = combo_filter_type.get()
-    criterion = entry_criterion.get().strip()
-    
-    if not raw_input:
-        messagebox.showwarning("تنبيه", "الرجاء إدخال البيانات أولاً!")
-        return
+class DataFilterEngine:
+    """محرك معالجة وترشيح البيانات - Backend Logic"""
+    @staticmethod
+    def clean_input(raw_data):
+        # تقسيم البيانات بناءً على الفواصل وتنظيف الفراغات
+        if not raw_data.strip():
+            return []
+        return [item.strip() for item in re.split(r'[,\n]+', raw_data) if item.strip()]
 
-    # تحويل الإدخال إلى قائمة
-    items = [item.strip() for item in raw_input.split(',')]
-    result = []
-
-    try:
-        if filter_type == "الأعداد الزوجية (Numbers: Even)":
+    @staticmethod
+    def filter_data(items, filter_type, criterion=""):
+        result = []
+        
+        if filter_type == "الأعداد الزوجية (Even Numbers)":
             result = [x for x in items if x.isdigit() and int(x) % 2 == 0]
-        
-        elif filter_type == "الأعداد الفردية (Numbers: Odd)":
+            
+        elif filter_type == "الأعداد الفردية (Odd Numbers)":
             result = [x for x in items if x.isdigit() and int(x) % 2 != 0]
-        
-        elif filter_type == "أكبر من قيمة معينة (Numbers: Greater Than)":
+            
+        elif filter_type == "أكبر من (Greater Than)":
             if not criterion.isdigit():
-                raise ValueError("الرجاء إدخال عدد صحيح في خانة الشرط")
+                raise ValueError("يجب إدخال عدد صحيح في خانة الشرط.")
             result = [x for x in items if x.isdigit() and int(x) > int(criterion)]
-        
-        elif filter_type == "تبدأ بحرف معين (Text: Starts With)":
+            
+        elif filter_type == "تبدأ بحرف (Starts With)":
             if not criterion:
-                raise ValueError("الرجاء تحديد الحرف في خانة الشرط")
+                raise ValueError("الرجاء تحديد حرف الترشيح.")
             result = [x for x in items if x.lower().startswith(criterion.lower())]
-        
-        elif filter_type == "الكلمات الأطول من (Text: Length Greater Than)":
+            
+        elif filter_type == "طول الكلمة أكبر من (Length >)":
             if not criterion.isdigit():
-                raise ValueError("الرجاء إدخال عدد صحيح لطول الكلمة")
+                raise ValueError("يجب إدخال عدد صحيح لطول الكلمة.")
             result = [x for x in items if len(x) > int(criterion)]
+            
+        return result
+
+
+class ModernFilterApp(tk.Tk):
+    """الواجهة الرسومية الحديثة للمشروع - UI View"""
+    def __init__(self):
+        super().__init__()
         
-        # عرض النتائج
-        text_output.config(state=tk.NORMAL)
-        text_output.delete("1.0", tk.END)
-        if result:
-            text_output.insert(tk.END, ", ".join(result))
-        else:
-            text_output.insert(tk.END, "لا توجد نتائج تطابق شروط الترشيح.")
-        text_output.config(state=tk.DISABLED)
+        self.title("منظومة ترشيح البيانات المتقدمة v2.0")
+        self.geometry("600x520")
+        self.configure(bg="#1e1e2e") # ثيم داكن احترافي
+        
+        self.setup_styles()
+        self.create_widgets()
+        
+    def setup_styles(self):
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        
+        # تخصيص مظهر القوائم والمدخلات لتبدو حديثة
+        self.style.configure("TCombobox", fieldbackground="#252538", background="#252538", foreground="white")
+        self.style.configure("TEntry", fieldbackground="#252538", foreground="white")
 
-    except ValueError as e:
-        messagebox.showerror("خطأ في البيانات", str(e))
+    def create_widgets(self):
+        # العنوان الرئيسي
+        title_lbl = tk.Label(self, text="Advanced Data Filtering System", font=("Segoe UI", 16, "bold"), bg="#1e1e2e", fg="#cba6f7")
+        title_lbl.pack(pady=15)
 
-# --- إعداد الواجهة الرسومية ---
-root = tk.Tk()
-root.title("نظام الترشيح الذكي والتفاعلي")
-root.geometry("550x450")
-root.configure(bg="#f0f4f8")
+        # منطقة الإدخال
+        input_frame = tk.LabelFrame(self, text=" المدخلات (افصل بين العناصر بفاصلة) ", bg="#1e1e2e", fg="#bac2de", font=("Segoe UI", 10))
+        input_frame.pack(pady=10, padx=20, fill=tk.X)
 
-# الستايل العام
-style = ttk.Style()
-style.theme_use('clam')
+        self.txt_input = tk.Text(input_frame, height=4, bg="#252538", fg="#cdd6f4", insertbackground="white", font=("Segoe UI", 11), bd=0, padx=5, pady=5)
+        self.txt_input.pack(fill=tk.X, padx=10, pady=10)
+        self.txt_input.insert("1.0", "10, apple, 23, orange, 8, banana, 105, python, 42")
 
-# العنوان
-label_title = tk.Label(root, text="منظومة ترشيح البيانات التفاعلية", font=("Helvetica", 16, "bold"), bg="#f0f4f8", fg="#2c3e50")
-label_title.pack(pady=15)
+        # منطقة التحكم والشروط
+        control_frame = tk.Frame(self, bg="#1e1e2e")
+        control_frame.pack(pady=10, padx=20, fill=tk.X)
 
-# مدخلات البيانات
-frame_input = tk.Frame(root, bg="#f0f4f8")
-frame_input.pack(pady=10, fill=tk.X, px=20)
+        tk.Label(control_frame, text="نوع الترشيح:", bg="#1e1e2e", fg="#bac2de").grid(row=0, column=0, sticky=tk.W, padx=5)
+        self.filter_options = [
+            "الأعداد الزوجية (Even Numbers)",
+            "الأعداد الفردية (Odd Numbers)",
+            "أكبر من (Greater Than)",
+            "تبدأ بحرف (Starts With)",
+            "طول الكلمة أكبر من (Length >)"
+        ]
+        self.combo_filter = ttk.Combobox(control_frame, values=self.filter_options, state="readonly", width=28)
+        self.combo_filter.current(0)
+        self.combo_filter.grid(row=1, column=0, padx=5, pady=5)
 
-label_input = tk.Label(frame_input, text="أدخل البيانات (افصل بينها بفاصلة ,):", font=("Helvetica", 10), bg="#f0f4f8")
-label_input.pack(anchor=tk.W)
-entry_input = ttk.Entry(frame_input, width=50, font=("Helvetica", 11))
-entry_input.pack(pady=5, fill=tk.X)
-entry_input.insert(0, "12, apple, 7, banana, 20, orange, 15, car")
+        tk.Label(control_frame, text="المعيار / الشرط:", bg="#1e1e2e", fg="#bac2de").grid(row=0, column=1, sticky=tk.W, padx=5)
+        self.entry_criterion = ttk.Entry(control_frame, width=15)
+        self.entry_criterion.grid(row=1, column=1, padx=5, pady=5)
 
-# خيارات الترشيح
-frame_controls = tk.Frame(root, bg="#f0f4f8")
-frame_controls.pack(pady=10, fill=tk.X, px=20)
+        # زر التشغيل الاحترافي
+        self.btn_run = tk.Button(self, text="تطبيق نظام الترشيح ⚡", font=("Segoe UI", 11, "bold"), bg="#a6e3a1", fg="#11111b", activebackground="#94e2d5", bd=0, cursor="hand2", command=self.process_filtering)
+        self.btn_run.pack(pady=15, ipadx=20, ipady=5)
 
-label_filter = tk.Label(frame_controls, text="اختر نوع الترشيح:", font=("Helvetica", 10), bg="#f0f4f8")
-label_filter.grid(row=0, column=0, sticky=tk.W, pady=5)
+        # منطقة المخرجات
+        output_frame = tk.LabelFrame(self, text=" البيانات المصفّاة والنتائج ", bg="#1e1e2e", fg="#a6e3a1", font=("Segoe UI", 10, "bold"))
+        output_frame.pack(pady=10, padx=20, fill=tk.BOTH, expand=True)
 
-filter_options = [
-    "الأعداد الزوجية (Numbers: Even)",
-    "الأعداد الفردية (Numbers: Odd)",
-    "أكبر من قيمة معينة (Numbers: Greater Than)",
-    "تبدأ بحرف معين (Text: Starts With)",
-    "الكلمات الأطول من (Text: Length Greater Than)"
-]
-combo_filter_type = ttk.Combobox(frame_controls, values=filter_options, width=35, state="readonly")
-combo_filter_type.current(0)
-combo_filter_type.grid(row=1, column=0, padx=5)
+        self.txt_output = tk.Text(output_frame, height=4, bg="#161622", fg="#a6e3a1", font=("Segoe UI", 12, "bold"), state=tk.DISABLED, bd=0, padx=5, pady=5)
+        self.txt_output.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-label_criterion = tk.Label(frame_controls, text="الشرط / القيمة المعيارية:", font=("Helvetica", 10), bg="#f0f4f8")
-label_criterion.grid(row=0, column=1, sticky=tk.W, pady=5)
-entry_criterion = ttk.Entry(frame_controls, width=15, font=("Helvetica", 11))
-entry_criterion.grid(row=1, column=1, padx=5)
+    def process_filtering(self):
+        raw_data = self.txt_input.get("1.0", tk.END)
+        items = DataFilterEngine.clean_input(raw_data)
+        
+        if not items:
+            messagebox.showwarning("تنبيه", "صندوق المدخلات فارغ!")
+            return
+            
+        filter_type = self.combo_filter.get()
+        criterion = self.entry_criterion.get().strip()
+        
+        try:
+            # استدعاء محرك الفلترة
+            filtered_results = DataFilterEngine.filter_data(items, filter_type, criterion)
+            
+            # تحديث الواجهة بالنتائج
+            self.txt_output.config(state=tk.NORMAL)
+            self.txt_output.delete("1.0", tk.END)
+            
+            if filtered_results:
+                self.txt_output.insert(tk.END, " | ".join(filtered_results))
+            else:
+                self.txt_output.insert(tk.END, "❌ لم يتم العثور على بيانات تطابق هذا الشرط.")
+                
+            self.txt_output.config(state=tk.DISABLED)
+            
+        except ValueError as e:
+            messagebox.showerror("خطأ في المعطيات", str(e))
 
-# زر التشغيل
-btn_filter = tk.Button(root, text="تطبيق الترشيح ⚡", font=("Helvetica", 12, "bold"), bg="#3498db", fg="white", bd=0, cursor="hand2", command=apply_filter)
-btn_filter.pack(pady=20, ipadx=20, ipady=5)
-
-# صندوق المخرجات
-frame_output = tk.Frame(root, bg="#f0f4f8")
-frame_output.pack(pady=10, fill=tk.BOTH, expand=True, px=20)
-
-label_output = tk.Label(frame_output, text="البيانات المُرشّحة (الناتج):", font=("Helvetica", 10, "bold"), bg="#f0f4f8", fg="#27ae60")
-label_output.pack(anchor=tk.W)
-
-text_output = tk.Text(frame_output, height=4, font=("Helvetica", 12), state=tk.DISABLED, bg="#eef2f7")
-text_output.pack(pady=5, fill=tk.BOTH, expand=True)
-
-# تشغيل البرنامج
-root.mainloop()
-
+if __name__ == "__main__":
+    app = ModernFilterApp()
+    app.mainloop()
