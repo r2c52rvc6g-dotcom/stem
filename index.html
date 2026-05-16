@@ -1,168 +1,22 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاسبة زوايا المضلع التعليمية</title>
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f8fafc;
-            --accent: #f59e0b;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            margin: 0;
-        }
-        .app-container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--card);
-            padding: 25px;
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        .badge {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--accent);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        h1 { font-size: 24px; margin: 10px 0; }
-        p.subtitle { color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
-        
-        .visualizer {
-            background: rgba(15, 23, 42, 0.5);
-            height: 200px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        svg { width: 150px; height: 150px; }
-        polygon { fill: rgba(79, 70, 229, 0.2); stroke: var(--primary); stroke-width: 3; }
+# نظام الترشيح الذكي والتفاعلي | Interactive Data Filtering System 🚀
 
-        .input-box {
-            background: #334155;
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        label { display: block; margin-bottom: 8px; font-size: 14px; color: #cbd5e1; }
-        input {
-            width: 80%;
-            background: none;
-            border: none;
-            border-bottom: 2px solid var(--primary);
-            color: white;
-            font-size: 28px;
-            text-align: center;
-            outline: none;
-        }
+تطبيق تفاعلي مبني بلغة بايثون واستخدام مكتبة Tkinter، يهدف إلى تسهيل عملية تصفية وترشيح البيانات (أرقام ونصوص) بناءً على شروط يحددها المستخدم عبر واجهة رسومية (GUI) بسيطة وذكية.
 
-        .result-card {
-            background: linear-gradient(135deg, #4f46e5, #3730a3);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 10px;
-        }
-        .result-label { font-size: 12px; opacity: 0.8; }
-        .result-value { font-size: 32px; font-weight: bold; margin: 5px 0; }
-        
-        .steps {
-            text-align: right;
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-        .step-title { color: var(--accent); font-weight: bold; display: block; margin-bottom: 5px; }
-    </style>
-</head>
-<body>
+An interactive Python application built with Tkinter for data filtering. It allows users to filter lists of numbers or strings based on custom dynamic criteria through a clean GUI.
 
-<div class="app-container">
-    <span class="badge">حاسبة هندسية</span>
-    <h1>زوايا المضلع</h1>
-    <p class="subtitle">أدخل عدد الأضلاع لمعرفة مجموع الزوايا الداخلية وشرح القانون.</p>
+## 🌟 الميزات | Features
+- **ترشيح الأرقام:** فرز الأعداد الزوجية، الفردية، أو الأكبر من قيمة معينة.
+- **ترشيح النصوص:** تصفية الكلمات التي تبدأ بحرف معين، أو حسب طول الكلمة.
+- **واجهة رسومية (GUI):** تصميم متجاوب وسهل الاستخدام مع معالجة ذكية للأخطاء (Error Handling).
+- **سهل التشغيل:** لا يتطلب أي مكتبات خارجية معقدة.
 
-    <div class="visualizer" id="polygon-container">
-        <svg id="svg-poly" viewBox="0 0 100 100">
-            <polygon id="poly-shape" points=""/>
-        </svg>
-    </div>
+## 🛠️ التقنيات المستخدمة | Tech Stack
+- **Python 3.x**
+- **Tkinter** (مكتبة الواجهات الرسومية القياسية)
 
-    <div class="input-box">
-        <label>عدد الأضلاع (n)</label>
-        <input type="number" id="sides" value="5" min="3" oninput="updateAll()">
-    </div>
-
-    <div class="result-card">
-        <div class="result-label">مجموع الزوايا الداخلية</div>
-        <div class="result-value" id="total-sum">540°</div>
-        <div class="result-label" id="each-angle">كل زاوية (إذا كان منتظماً): 108°</div>
-    </div>
-
-    <div class="steps">
-        <span class="step-title">طريقة الحساب (الخطوات):</span>
-        <div>1. القانون: (n - 2) × 180</div>
-        <div id="step-calc">2. التعويض: (5 - 2) × 180 = 540°</div>
-    </div>
-</div>
-
-<script>
-    function updateAll() {
-        const n = document.getElementById('sides').value;
-        const totalSumEl = document.getElementById('total-sum');
-        const eachAngleEl = document.getElementById('each-angle');
-        const stepCalcEl = document.getElementById('step-calc');
-        const polyShape = document.getElementById('poly-shape');
-
-        if (n < 3) {
-            totalSumEl.innerText = "---";
-            return;
-        }
-
-        // الحسابات
-        const sum = (n - 2) * 180;
-        const each = (sum / n).toFixed(1);
-
-        // تحديث النصوص
-        totalSumEl.innerText = sum + "°";
-        eachAngleEl.innerText = `كل زاوية (إذا كان منتظماً): ${each}°`;
-        stepCalcEl.innerText = `2. التعويض: (${n} - 2) × 180 = ${sum}°`;
-
-        // رسم المضلع
-        const points = [];
-        const radius = 40;
-        const center = 50;
-        for (let i = 0; i < n; i++) {
-            const angle = (i * 2 * Math.PI) / n - Math.PI / 2;
-            const x = center + radius * Math.cos(angle);
-            const y = center + radius * Math.sin(angle);
-            points.push(`${x},${y}`);
-        }
-        polyShape.setAttribute("points", points.join(" "));
-    }
-
-    // تشغيل أولي
-    updateAll();
-</script>
-
-</body>
-</html>
+## 🚀 طريقة التشغيل | How to Run
+1. تأكد من تثبيت بايثون على جهازك.
+2. قم بتحميل الملف أو نسخ الكود إلى ملف باسم `filter_app.py`.
+3. افتح الطرفية (Terminal) وشغل الأمر التالي:
+   ```bash
+   python filter_app.py
