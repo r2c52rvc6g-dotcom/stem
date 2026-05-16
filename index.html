@@ -1,22 +1,115 @@
-# نظام الترشيح الذكي والتفاعلي | Interactive Data Filtering System 🚀
+import tkinter as tk
+from tkinter import ttk, messagebox
 
-تطبيق تفاعلي مبني بلغة بايثون واستخدام مكتبة Tkinter، يهدف إلى تسهيل عملية تصفية وترشيح البيانات (أرقام ونصوص) بناءً على شروط يحددها المستخدم عبر واجهة رسومية (GUI) بسيطة وذكية.
+# --- دالة الترشيح الرئيسية ---
+def apply_filter():
+    raw_input = entry_input.get()
+    filter_type = combo_filter_type.get()
+    criterion = entry_criterion.get().strip()
+    
+    if not raw_input:
+        messagebox.showwarning("تنبيه", "الرجاء إدخال البيانات أولاً!")
+        return
 
-An interactive Python application built with Tkinter for data filtering. It allows users to filter lists of numbers or strings based on custom dynamic criteria through a clean GUI.
+    # تحويل الإدخال إلى قائمة
+    items = [item.strip() for item in raw_input.split(',')]
+    result = []
 
-## 🌟 الميزات | Features
-- **ترشيح الأرقام:** فرز الأعداد الزوجية، الفردية، أو الأكبر من قيمة معينة.
-- **ترشيح النصوص:** تصفية الكلمات التي تبدأ بحرف معين، أو حسب طول الكلمة.
-- **واجهة رسومية (GUI):** تصميم متجاوب وسهل الاستخدام مع معالجة ذكية للأخطاء (Error Handling).
-- **سهل التشغيل:** لا يتطلب أي مكتبات خارجية معقدة.
+    try:
+        if filter_type == "الأعداد الزوجية (Numbers: Even)":
+            result = [x for x in items if x.isdigit() and int(x) % 2 == 0]
+        
+        elif filter_type == "الأعداد الفردية (Numbers: Odd)":
+            result = [x for x in items if x.isdigit() and int(x) % 2 != 0]
+        
+        elif filter_type == "أكبر من قيمة معينة (Numbers: Greater Than)":
+            if not criterion.isdigit():
+                raise ValueError("الرجاء إدخال عدد صحيح في خانة الشرط")
+            result = [x for x in items if x.isdigit() and int(x) > int(criterion)]
+        
+        elif filter_type == "تبدأ بحرف معين (Text: Starts With)":
+            if not criterion:
+                raise ValueError("الرجاء تحديد الحرف في خانة الشرط")
+            result = [x for x in items if x.lower().startswith(criterion.lower())]
+        
+        elif filter_type == "الكلمات الأطول من (Text: Length Greater Than)":
+            if not criterion.isdigit():
+                raise ValueError("الرجاء إدخال عدد صحيح لطول الكلمة")
+            result = [x for x in items if len(x) > int(criterion)]
+        
+        # عرض النتائج
+        text_output.config(state=tk.NORMAL)
+        text_output.delete("1.0", tk.END)
+        if result:
+            text_output.insert(tk.END, ", ".join(result))
+        else:
+            text_output.insert(tk.END, "لا توجد نتائج تطابق شروط الترشيح.")
+        text_output.config(state=tk.DISABLED)
 
-## 🛠️ التقنيات المستخدمة | Tech Stack
-- **Python 3.x**
-- **Tkinter** (مكتبة الواجهات الرسومية القياسية)
+    except ValueError as e:
+        messagebox.showerror("خطأ في البيانات", str(e))
 
-## 🚀 طريقة التشغيل | How to Run
-1. تأكد من تثبيت بايثون على جهازك.
-2. قم بتحميل الملف أو نسخ الكود إلى ملف باسم `filter_app.py`.
-3. افتح الطرفية (Terminal) وشغل الأمر التالي:
-   ```bash
-   python filter_app.py
+# --- إعداد الواجهة الرسومية ---
+root = tk.Tk()
+root.title("نظام الترشيح الذكي والتفاعلي")
+root.geometry("550x450")
+root.configure(bg="#f0f4f8")
+
+# الستايل العام
+style = ttk.Style()
+style.theme_use('clam')
+
+# العنوان
+label_title = tk.Label(root, text="منظومة ترشيح البيانات التفاعلية", font=("Helvetica", 16, "bold"), bg="#f0f4f8", fg="#2c3e50")
+label_title.pack(pady=15)
+
+# مدخلات البيانات
+frame_input = tk.Frame(root, bg="#f0f4f8")
+frame_input.pack(pady=10, fill=tk.X, px=20)
+
+label_input = tk.Label(frame_input, text="أدخل البيانات (افصل بينها بفاصلة ,):", font=("Helvetica", 10), bg="#f0f4f8")
+label_input.pack(anchor=tk.W)
+entry_input = ttk.Entry(frame_input, width=50, font=("Helvetica", 11))
+entry_input.pack(pady=5, fill=tk.X)
+entry_input.insert(0, "12, apple, 7, banana, 20, orange, 15, car")
+
+# خيارات الترشيح
+frame_controls = tk.Frame(root, bg="#f0f4f8")
+frame_controls.pack(pady=10, fill=tk.X, px=20)
+
+label_filter = tk.Label(frame_controls, text="اختر نوع الترشيح:", font=("Helvetica", 10), bg="#f0f4f8")
+label_filter.grid(row=0, column=0, sticky=tk.W, pady=5)
+
+filter_options = [
+    "الأعداد الزوجية (Numbers: Even)",
+    "الأعداد الفردية (Numbers: Odd)",
+    "أكبر من قيمة معينة (Numbers: Greater Than)",
+    "تبدأ بحرف معين (Text: Starts With)",
+    "الكلمات الأطول من (Text: Length Greater Than)"
+]
+combo_filter_type = ttk.Combobox(frame_controls, values=filter_options, width=35, state="readonly")
+combo_filter_type.current(0)
+combo_filter_type.grid(row=1, column=0, padx=5)
+
+label_criterion = tk.Label(frame_controls, text="الشرط / القيمة المعيارية:", font=("Helvetica", 10), bg="#f0f4f8")
+label_criterion.grid(row=0, column=1, sticky=tk.W, pady=5)
+entry_criterion = ttk.Entry(frame_controls, width=15, font=("Helvetica", 11))
+entry_criterion.grid(row=1, column=1, padx=5)
+
+# زر التشغيل
+btn_filter = tk.Button(root, text="تطبيق الترشيح ⚡", font=("Helvetica", 12, "bold"), bg="#3498db", fg="white", bd=0, cursor="hand2", command=apply_filter)
+btn_filter.pack(pady=20, ipadx=20, ipady=5)
+
+# صندوق المخرجات
+frame_output = tk.Frame(root, bg="#f0f4f8")
+frame_output.pack(pady=10, fill=tk.BOTH, expand=True, px=20)
+
+label_output = tk.Label(frame_output, text="البيانات المُرشّحة (الناتج):", font=("Helvetica", 10, "bold"), bg="#f0f4f8", fg="#27ae60")
+label_output.pack(anchor=tk.W)
+
+text_output = tk.Text(frame_output, height=4, font=("Helvetica", 12), state=tk.DISABLED, bg="#eef2f7")
+text_output.pack(pady=5, fill=tk.BOTH, expand=True)
+
+# تشغيل البرنامج
+root.mainloop()
+
